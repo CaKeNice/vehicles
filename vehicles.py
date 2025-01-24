@@ -76,20 +76,9 @@ import joblib
 
 # # Train the model once at the beginning
 # DTR_model = train_model()
-def load_model_with_missing_field(file_path):
-    with open(file_path, 'rb') as f:
-        model_data = joblib.load(f)
-
-    # Check if the missing field is missing, and add it if necessary
-    if 'missing_go_to_left' not in model_data['nodes'].dtype.names:
-        dtype = model_data['nodes'].dtype.descr + [('missing_go_to_left', 'u1')]
-        model_data['nodes'] = np.array(model_data['nodes'], dtype=dtype)
-        model_data['nodes']['missing_go_to_left'] = 0  # Default value (can be adjusted)
-
-    return model_data
 
 # Load the model
-DTR_model = load_model_with_missing_field('model_dtr.joblib')
+DTR_model = joblib.load('model_dtr2.joblib')
 
 # Add a title
 st.title("Vehicle Price Prediction")
