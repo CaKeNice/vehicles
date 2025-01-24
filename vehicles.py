@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import joblib
+from sklearn.externals import joblib
 
 DTR_model = joblib.load('model_dtr.joblib')
 # Add a title
