@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 # Define the model training function
 def train_model():
     # Load the dataset
-    df = pd.read_csv('vehicles.csv')
+    df = pd.read_csv('C:/Users/2019P/MLDP/vehicles.csv')
 
     # Preprocess the data as per the steps provided earlier
     df = df.drop(['id', 'url', 'region_url', 'image_url', 'description', 'lat', 'long', 'VIN', 'model', 'paint_color', 'region', 'state', 'county', 'posting_date', 'title_status', 'transmission'], axis=1)
