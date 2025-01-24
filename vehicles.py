@@ -5,76 +5,79 @@ import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.model_selection import train_test_split
+import joblib
 
-# Define the model training function
-def train_model():
-    # Load the dataset
-    df = pd.read_csv('C:/Users/2019P/MLDP/vehicles.csv')
+# # Define the model training function
+# def train_model():
+#     # Load the dataset
+#     df = pd.read_csv('C:/Users/2019P/MLDP/vehicles.csv')
 
-    # Preprocess the data as per the steps provided earlier
-    df = df.drop(['id', 'url', 'region_url', 'image_url', 'description', 'lat', 'long', 'VIN', 'model', 'paint_color', 'region', 'state', 'county', 'posting_date', 'title_status', 'transmission'], axis=1)
-    df.drop_duplicates()
-    df = df[df['price'] < 1500000]
-    threshold = 3
+#     # Preprocess the data as per the steps provided earlier
+#     df = df.drop(['id', 'url', 'region_url', 'image_url', 'description', 'lat', 'long', 'VIN', 'model', 'paint_color', 'region', 'state', 'county', 'posting_date', 'title_status', 'transmission'], axis=1)
+#     df.drop_duplicates()
+#     df = df[df['price'] < 1500000]
+#     threshold = 3
 
-    missing_count = df.isna().sum(axis=1)
-    df = df[missing_count < threshold]
+#     missing_count = df.isna().sum(axis=1)
+#     df = df[missing_count < threshold]
 
-    df['cylinders'] = df['cylinders'].str[:1]
-    df['cylinders'] = pd.to_numeric(df['cylinders'], errors='coerce')
-    df.loc[df['cylinders'].isna(), 'cylinders'] = df['cylinders'].mean()
+#     df['cylinders'] = df['cylinders'].str[:1]
+#     df['cylinders'] = pd.to_numeric(df['cylinders'], errors='coerce')
+#     df.loc[df['cylinders'].isna(), 'cylinders'] = df['cylinders'].mean()
 
-    df.loc[df['odometer'].isna(), 'odometer'] = df['odometer'].mean()
+#     df.loc[df['odometer'].isna(), 'odometer'] = df['odometer'].mean()
 
-    df.loc[df['fuel'].isna(), 'fuel'] = 'missing_fuel'
-    df.loc[df['manufacturer'].isna(), 'manufacturer'] = 'missing_manufacturer'
-    df.loc[df['condition'].isna(), 'condition'] = 'missing_condition'
-    df.loc[df['drive'].isna(), 'drive'] = 'missing_drive'
-    df.loc[df['size'].isna(), 'size'] = 'missing_size'
-    df.loc[df['type'].isna(), 'type'] = 'missing_type'
+#     df.loc[df['fuel'].isna(), 'fuel'] = 'missing_fuel'
+#     df.loc[df['manufacturer'].isna(), 'manufacturer'] = 'missing_manufacturer'
+#     df.loc[df['condition'].isna(), 'condition'] = 'missing_condition'
+#     df.loc[df['drive'].isna(), 'drive'] = 'missing_drive'
+#     df.loc[df['size'].isna(), 'size'] = 'missing_size'
+#     df.loc[df['type'].isna(), 'type'] = 'missing_type'
 
-    manufacturer_groups = {
-        'acura': 'Japanese', 'audi': 'European', 'bmw': 'European', 'cadillac': 'American',
-        'chevrolet': 'American', 'chrysler': 'American', 'dodge': 'American', 'ferrari': 'Luxury',
-        'fiat': 'European', 'ford': 'American', 'gmc': 'American', 'honda': 'Japanese', 'hyundai': 'Korean',
-        'infiniti': 'Japanese', 'jeep': 'American', 'kia': 'Korean', 'lexus': 'Japanese', 'lincoln': 'American',
-        'mazda': 'Japanese', 'mercedes-benz': 'European', 'mercury': 'American', 'mini': 'European',
-        'mitsubishi': 'Japanese', 'nissan': 'Japanese', 'porsche': 'Luxury', 'ram': 'American', 'rover': 'Luxury',
-        'subaru': 'Japanese', 'tesla': 'American', 'toyota': 'Japanese', 'volkswagen': 'European', 'volvo': 'European'
-    }
+#     manufacturer_groups = {
+#         'acura': 'Japanese', 'audi': 'European', 'bmw': 'European', 'cadillac': 'American',
+#         'chevrolet': 'American', 'chrysler': 'American', 'dodge': 'American', 'ferrari': 'Luxury',
+#         'fiat': 'European', 'ford': 'American', 'gmc': 'American', 'honda': 'Japanese', 'hyundai': 'Korean',
+#         'infiniti': 'Japanese', 'jeep': 'American', 'kia': 'Korean', 'lexus': 'Japanese', 'lincoln': 'American',
+#         'mazda': 'Japanese', 'mercedes-benz': 'European', 'mercury': 'American', 'mini': 'European',
+#         'mitsubishi': 'Japanese', 'nissan': 'Japanese', 'porsche': 'Luxury', 'ram': 'American', 'rover': 'Luxury',
+#         'subaru': 'Japanese', 'tesla': 'American', 'toyota': 'Japanese', 'volkswagen': 'European', 'volvo': 'European'
+#     }
 
-    # Define the grouping function
-    def group_manufacturer(manufacturer):
-        for key, group in manufacturer_groups.items():
-            if key in manufacturer.lower():
-                return group
-        return 'Other'
+#     # Define the grouping function
+#     def group_manufacturer(manufacturer):
+#         for key, group in manufacturer_groups.items():
+#             if key in manufacturer.lower():
+#                 return group
+#         return 'Other'
 
-    # Apply the function to create a new 'manufacturer_group' column
-    df['manufacturer_group'] = df['manufacturer'].apply(group_manufacturer)
-    df = df.drop(['manufacturer'], axis=1)
+#     # Apply the function to create a new 'manufacturer_group' column
+#     df['manufacturer_group'] = df['manufacturer'].apply(group_manufacturer)
+#     df = df.drop(['manufacturer'], axis=1)
 
-    # Perform one-hot encoding
-    df = pd.get_dummies(df, columns=['manufacturer_group', 'condition', 'fuel', 'drive', 'size', 'type'])
+#     # Perform one-hot encoding
+#     df = pd.get_dummies(df, columns=['manufacturer_group', 'condition', 'fuel', 'drive', 'size', 'type'])
 
-    X = df.drop('price', axis=1).to_numpy()
-    y = df['price'].to_numpy()
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=7)
+#     X = df.drop('price', axis=1).to_numpy()
+#     y = df['price'].to_numpy()
+#     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=7)
 
-    # Initialize and train the model
-    model = DecisionTreeRegressor(
-        max_depth=None,
-        max_features=1.0,
-        min_samples_leaf=2,
-        min_samples_split=10,
-        random_state=4
-    )
+#     # Initialize and train the model
+#     model = DecisionTreeRegressor(
+#         max_depth=None,
+#         max_features=1.0,
+#         min_samples_leaf=2,
+#         min_samples_split=10,
+#         random_state=4
+#     )
 
-    model.fit(X_train, y_train)
-    return model
+#     model.fit(X_train, y_train)
+#     return model
 
-# Train the model once at the beginning
-DTR_model = train_model()
+# # Train the model once at the beginning
+# DTR_model = train_model()
+
+DTR_model = joblib.load('model_dtr.joblib')
 
 # Add a title
 st.title("Vehicle Price Prediction")
